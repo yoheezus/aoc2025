@@ -29,18 +29,18 @@ func readInput(path string) []string {
 }
 
 type Wheel struct {
-	length int
-	idx    int
-	wheel  []int
-	clicks int
+	length  int
+	idx     int
+	clicks  int
+	on_zero int
 }
 
-func (w *Wheel) NewWheel() {
-	w.wheel = make([]int, w.length)
-	for i := range w.length {
-		w.wheel[i] = i
-	}
-}
+// func (w *Wheel) NewWheel() {
+// 	w.wheel = make([]int, w.length)
+// 	for i := range w.length {
+// 		w.wheel[i] = i
+// 	}
+// }
 
 func parseInstructions(instructions []string) []int {
 	parsedInstructions := make([]int, len(instructions))
@@ -64,46 +64,38 @@ func (w *Wheel) Reset() {
 }
 
 func (w *Wheel) Spin(instruction int) int {
-	started_zero := false
-	if w.idx == 0 {
-		started_zero = true
-	}
+	start := w.idx
+	new_pos := w.idx + instruction
+	local_clicks := 0
 
-	new_pos := w.idx
-	new_pos += instruction
+	if (new_pos > w.length || new_pos < 0) && w.idx != 0 {
+		w.clicks += 1
+		local_clicks += 1
+	}
 
 	// While the new position is below 0 or above 100
 	// Keep subtracting the length of the list until it's a valid index
-	for new_pos >= w.length || new_pos < 0 {
-		// if new_pos == 0 {
-		// 	started_zero = true
-		// }
+	for new_pos > w.length-1 || new_pos < 0 {
 
-		// There is currently an error where it is counting passing 0 if it stats on 0
-
-		if new_pos == 100 {
-			new_pos = new_pos - w.length
-			if !started_zero {
-				w.clicks += 1
-				started_zero = true
-			}
-
-		} else if new_pos < 0 {
+		if new_pos < 0 {
 			new_pos = w.length + new_pos // Adding as it's a negative number
 
 		} else if new_pos >= w.length {
 			new_pos = new_pos - w.length
 
 		}
-		if started_zero {
-			started_zero = false
-		} else {
+		if new_pos > w.length-1 || new_pos < 0 {
 			w.clicks += 1
+			local_clicks += 1
 		}
-
 	}
 
 	w.idx = new_pos
+	if w.idx == 0 {
+		w.on_zero += 1
+	}
+
+	fmt.Printf("Starting %d, instruction %d, ends at %d, clicks: %d on_zeroes:%d\n", start, instruction, new_pos, local_clicks, w.on_zero)
 	return w.idx
 }
 
@@ -120,15 +112,14 @@ func main() {
 		length: 100,
 		idx:    0,
 	}
-	w.NewWheel()
 
 	var raw_instructions []string
 	for _, v := range readInput("inputs/day1-1.txt") {
 		raw_instructions = append(raw_instructions, string(v))
 	}
 	// instructions := parseInstructions(raw_instructions)
-	// instructions := []int{-68, -30, 48, -5, 60, -55, -1, -99, 14, -82}
-	instructions := []int{200}
+	// instructions := []int{-68, -30, 48, -5, 60, -55, -1, -99, 14, -82, -32, 200}
+	instructions := []int{857}
 	unfiltered := DoSpins(instructions, &w)
 	var zero_count int
 	for i := range unfiltered {
@@ -137,6 +128,6 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Part 1s: %d, Part 2s: %d, answer: %d idx: %d\n", zero_count, w.clicks, zero_count+w.clicks, w.idx)
+	fmt.Printf("Lands: %d, Passes: %d, answer: %d idx: %d\n", w.on_zero, w.clicks, zero_count+w.clicks, w.idx)
 
 }
