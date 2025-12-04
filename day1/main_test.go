@@ -57,7 +57,7 @@ func TestLandsOnZero(t *testing.T) {
 	}
 
 	if zero_count != want {
-		t.Errorf(`DoSpins(%q) = %q, want %d`, instructions, zero_count, want)
+		t.Errorf(`DoSpins(%v) = %d, want %d`, instructions, zero_count, want)
 	} else {
 		t.Logf(`total Zero count: %d\n
 		total Zero passes %d\n`, zero_count, w.clicks)

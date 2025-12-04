@@ -59,43 +59,53 @@ func parseInstructions(instructions []string) []int {
 
 }
 
-func (w *Wheel) Reset() {
-	w.idx = 50
-}
-
 func (w *Wheel) Spin(instruction int) int {
 	start := w.idx
-	new_pos := w.idx + instruction
 	local_clicks := 0
+	new_pos := start + instruction
+	started_zero := start == 0
 
-	if (new_pos > w.length || new_pos < 0) && w.idx != 0 {
-		w.clicks += 1
-		local_clicks += 1
-	}
-
-	// While the new position is below 0 or above 100
-	// Keep subtracting the length of the list until it's a valid index
 	for new_pos > w.length-1 || new_pos < 0 {
 
-		if new_pos < 0 {
-			new_pos = w.length + new_pos // Adding as it's a negative number
+		// Over Bounds
+		if new_pos > w.length {
+			new_pos -= w.length
 
-		} else if new_pos >= w.length {
-			new_pos = new_pos - w.length
-
+			if !started_zero {
+				local_clicks += 1
+			}
 		}
-		if new_pos > w.length-1 || new_pos < 0 {
-			w.clicks += 1
-			local_clicks += 1
+		// Under Bounds
+		if new_pos < 0 {
+			new_pos += w.length // Addition because number is negative
+
+			if !started_zero {
+				local_clicks += 1
+			}
+		}
+
+		if new_pos == 100 {
+			new_pos = 0
 		}
 	}
 
-	w.idx = new_pos
-	if w.idx == 0 {
+	if started_zero {
+		started_zero = false
+	}
+
+	if new_pos == 0 {
 		w.on_zero += 1
 	}
 
-	fmt.Printf("Starting %d, instruction %d, ends at %d, clicks: %d on_zeroes:%d\n", start, instruction, new_pos, local_clicks, w.on_zero)
+	// if start == 0 {
+	// 	skip_count := true
+	// } else {
+	// 	skip_count := false
+	// }
+
+	// fmt.Printf("Starting %d, instruction %d, ends at %d, clicks: %d on_zeroes:%d\n", start, instruction, new_pos, local_clicks, w.on_zero)
+	w.idx = new_pos
+	w.clicks += local_clicks
 	return w.idx
 }
 
@@ -110,24 +120,18 @@ func DoSpins(instructions []int, w *Wheel) []int {
 func main() {
 	w := Wheel{
 		length: 100,
-		idx:    0,
+		idx:    50,
 	}
 
 	var raw_instructions []string
-	for _, v := range readInput("inputs/day1-1.txt") {
+	for _, v := range readInput("../inputs/day1-1.txt") {
 		raw_instructions = append(raw_instructions, string(v))
 	}
-	// instructions := parseInstructions(raw_instructions)
-	// instructions := []int{-68, -30, 48, -5, 60, -55, -1, -99, 14, -82, -32, 200}
-	instructions := []int{857}
-	unfiltered := DoSpins(instructions, &w)
-	var zero_count int
-	for i := range unfiltered {
-		if unfiltered[i] == 0 {
-			zero_count += 1
-		}
-	}
+	instructions := parseInstructions(raw_instructions)
+	// instructions := []int{-68, -30, 48, -5, 60, -55, -1, -99, 14, -82}
+	// instructions := []int{1000}
+	_ = DoSpins(instructions, &w)
 
-	fmt.Printf("Lands: %d, Passes: %d, answer: %d idx: %d\n", w.on_zero, w.clicks, zero_count+w.clicks, w.idx)
+	fmt.Printf("Lands: %d, Passes: %d, answer: %d idx: %d\n", w.on_zero, w.clicks, w.on_zero+w.clicks, w.idx)
 
 }
