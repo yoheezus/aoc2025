@@ -35,13 +35,6 @@ type Wheel struct {
 	on_zero int
 }
 
-// func (w *Wheel) NewWheel() {
-// 	w.wheel = make([]int, w.length)
-// 	for i := range w.length {
-// 		w.wheel[i] = i
-// 	}
-// }
-
 func parseInstructions(instructions []string) []int {
 	parsedInstructions := make([]int, len(instructions))
 	for i, v := range instructions {
@@ -96,12 +89,6 @@ func (w *Wheel) Spin(instruction int) int {
 	if new_pos == 0 {
 		w.on_zero += 1
 	}
-
-	// if start == 0 {
-	// 	skip_count := true
-	// } else {
-	// 	skip_count := false
-	// }
 
 	// fmt.Printf("Starting %d, instruction %d, ends at %d, clicks: %d on_zeroes:%d\n", start, instruction, new_pos, local_clicks, w.on_zero)
 	w.idx = new_pos
