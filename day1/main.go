@@ -56,34 +56,34 @@ func (w *Wheel) Spin(instruction int) int {
 	start := w.idx
 	local_clicks := 0
 	new_pos := start + instruction
+	if new_pos == 100 {
+		new_pos = 0
+	}
 	started_zero := start == 0
 
 	for new_pos > w.length-1 || new_pos < 0 {
 
-		// Over Bounds
-		if new_pos > w.length {
-			new_pos -= w.length
-
-			if !started_zero {
-				local_clicks += 1
-			}
-		}
-		// Under Bounds
-		if new_pos < 0 {
-			new_pos += w.length // Addition because number is negative
-
-			if !started_zero {
-				local_clicks += 1
-			}
+		if started_zero || new_pos == 0 {
+			started_zero = false
+		} else {
+			local_clicks += 1
 		}
 
 		if new_pos == 100 {
 			new_pos = 0
 		}
 
-		if started_zero {
-			started_zero = false
+		// Over Bounds
+		if new_pos > w.length-1 {
+			new_pos -= w.length
+
 		}
+		// Under Bounds
+		if new_pos < 0 {
+			new_pos += w.length // Addition because number is negative
+
+		}
+
 	}
 
 	if new_pos == 0 {
@@ -107,16 +107,16 @@ func DoSpins(instructions []int, w *Wheel) []int {
 func main() {
 	w := Wheel{
 		length: 100,
-		idx:    0,
+		idx:    50,
 	}
 
 	var raw_instructions []string
 	for _, v := range readInput("../inputs/day1-1.txt") {
 		raw_instructions = append(raw_instructions, string(v))
 	}
-	// instructions := parseInstructions(raw_instructions)
+	instructions := parseInstructions(raw_instructions)
 	// instructions := []int{-68, -30, 48, -5, 60, -55, -1, -99, 14, -82}
-	instructions := []int{1000}
+	// instructions := []int{200}
 	_ = DoSpins(instructions, &w)
 
 	fmt.Printf("Lands: %d, Passes: %d, answer: %d idx: %d\n", w.on_zero, w.clicks, w.on_zero+w.clicks, w.idx)
