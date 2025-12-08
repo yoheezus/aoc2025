@@ -23,3 +23,12 @@ func ReadInput(path string) []string {
 	}
 	return content
 }
+
+func Sum(s []int) int {
+	total := 0
+	for _, x := range s {
+		total += x
+	}
+
+	return total
+}
