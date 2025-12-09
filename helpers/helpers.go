@@ -24,6 +24,12 @@ func ReadInput(path string) []string {
 	return content
 }
 
+func ReadInputAll(path string) string {
+	b, _ := os.ReadFile(path)
+
+	return string(b)
+}
+
 func Sum(s []int) int {
 	total := 0
 	for _, x := range s {
